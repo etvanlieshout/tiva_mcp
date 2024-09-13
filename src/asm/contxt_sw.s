@@ -8,7 +8,7 @@
 
 contxt_sw:
 	PUSH	{r0-r11, lr}
-	PUSH	{lr}
+	PUSH	{lr}            ; WTF IS THIS ??? WHY PUSH TWICE?
 	MRS	r2, XPSR
 	PUSH	{r2}
 	STR	sp, [r0]

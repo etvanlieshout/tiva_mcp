@@ -9,5 +9,6 @@ void multitasking_init();
 void mem_init();
 void os_run();
 void sched_timer_init();
+void *init_usrmem();
 
 #endif

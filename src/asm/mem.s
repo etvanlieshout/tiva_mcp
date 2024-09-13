@@ -14,11 +14,11 @@ usrmem:	.word	0x0	; Label to mark the start of user process memory/
 			; stack space; this allocated space is 4 KB for now
 
 	.text
-	.global	init_usermem
+	.global	init_usrmem
 
 usrmem_p:	.word	usrmem
 
-init_usermem:
+init_usrmem:
 	ldr  r0, usrmem_p
 	mov  pc, lr
 

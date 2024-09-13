@@ -1,19 +1,24 @@
 /*
  * Code for the processes to blink the LED
  * */
+#include <stdint.h>
+
+#define DELAY_R 4000000
+#define DELAY_B 3000000
 
 void blue();
 void red();
 
 void blue()
 {
+	led_init();
 	uint8_t led_state = 0;
 	while (1) {
 		led_state ^= 0x4;
 		*(volatile uint8_t *)(0x40025010) = led_state; // toggle pin 1 (red)
 		// NOTE: 0x010 offset writes only to blue pin
 		int i=0;
-		for (i; i < 16535; ++i)
+		for (i; i < DELAY_B; ++i)
 			;
 	}
 	return;
@@ -21,13 +26,14 @@ void blue()
 
 void red()
 {
+	led_init();
 	uint8_t led_state = 0;
 	while (1) {
 		led_state ^= 0x2;
 		*(volatile uint8_t *)(0x40025008) = led_state; // toggle pin 1 (red)
 		// NOTE: 0x008 offset writes only to blue pin
 		int i=0; // Ti compiler can't do assignments inside for()
-		for (i; i < 16535; ++i)
+		for (i; i < DELAY_R; ++i)
 			;
 	}
 	return;
