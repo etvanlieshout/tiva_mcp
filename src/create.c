@@ -50,7 +50,7 @@ int create(
 	// the location where ctxsw pulls the pc from to the startaddr.
 	// In contxt_sw, each frame on stack is 14 words, & pc is located @ 14th
 	// word. (so: offset of 13 words).
-	*(volatile uint32_t *)curr_stkptr - 13 = startaddr;
+	*((volatile uint32_t *)(p_ptr->curr_stkptr) - 13) = startaddr;
 
 	// set process program counter start addr
 	p_ptr->proc_pc = startaddr; // not necessary, but does nothing
