@@ -77,6 +77,9 @@ int create(
 
 	p_ptr->stkptr -= 20;  // skip reschedule space ?
 	p_ptr->stkptr -= 14*4;  // skip registers
+=======
+	*((volatile uint32_t *)(p_ptr->curr_stkptr) - 13) = startaddr;
+>>>>>>> 5236b9a43d9c4c33f2d209c344312484d226eb81
 
 	// set process program counter start addr
 	p_ptr->proc_pc = startaddr; // not necessary, but does nothing
