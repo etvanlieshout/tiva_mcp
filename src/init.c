@@ -10,7 +10,7 @@ extern void led_init();
 
 
 /* set up scheduler timer & add this as main process */
-void multitasking_init()
+void mcp_init()
 {
 	// set up memory
 	mem_init();
@@ -24,21 +24,17 @@ void multitasking_init()
 	led_init();
 
 	// First, create a main process; this one will do nothing
-	char *proc_name = "os_base_proc";
-	create(&os_run, 128, 1, proc_name, 0);
+	char *proc_name = "mcp_base_proc";
+	create(&mcp_run, 256, 1, proc_name, 0);
+
+	// switch to PSP
+
 	sched_timer_init();
 	while (1)
 		; // keeps program alive until reschedule timer triggers
 }
 
-/* sets up the general process memory space */
-void mem_init()
-{
-	sys_stk_base = init_usrmem();
-	nxt_stk_base = sys_stk_base;
-}
-
-void os_run()
+void mcp_run()
 {
 	// run led_init, the create 2 processes: red & blue
 	// OR: run led_init as a process and kill it (harder)
@@ -53,6 +49,13 @@ void os_run()
 		;	// can add book-keeping an other things here later
 			// could have it print creent proc name to debug term?
 	}
+}
+
+/* sets up the general process memory space */
+void mem_init()
+{
+	sys_stk_base = init_usrmem();
+	nxt_stk_base = sys_stk_base;
 }
 
 void sched_timer_init()

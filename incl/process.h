@@ -20,7 +20,7 @@ struct process {
 	void	*curr_stkptr;
 	void	*base_stkptr;
 	int	stack_size;
-	void 	*proc_pc
+	void 	*proc_pc;
 };
 
 struct process	process_table[NUMPROC];
