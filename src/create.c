@@ -52,27 +52,24 @@ int create(
 	// word. (so: offset of 13 words).
 	//*(volatile uint32_t *)p_ptr->curr_stkptr - 13 = startaddr;
 
-	/* set up inital stack frame */
-	/* Format:
-	 * First 8 words: IRQ handler push: XPSR, pc, lr, r12, r3-r0
-	 * Next 2 words: EXC_RETURN (lr updated on entry to handler, pushed on call
-	 * to reschedule) + alignment
-	 * Next 5 words: pushed by reschedule();
-	 * Last: 14 words: context switch push
-	 * TOTAL: 29 words
-	 */
-	*(volatile uint32_t *)p_ptr->curr_stkptr = 0x00000000; /* xPSR @ irq */
+	/* Set up inital stack frame:
+	 * 8-words frame to mimic IRQ handler push: XPSR, pc, lr, r12, r3-r0 */
+
+	/* PSR @ irq: set to default reset value */
+	*(volatile uint32_t *)p_ptr->curr_stkptr = 0x01000000;
 	p_ptr->curr_stkptr -= 4;
-	*(volatile uint32_t *)p_ptr->curr_stkptr = startaddr; /* pc @ irq */
-	                                                      /* code resumes from
-														   * here*/
+	/* pc @ irq: set to start of process code */
+	*(volatile uint32_t *)p_ptr->curr_stkptr = startaddr;
 	p_ptr->curr_stkptr -= 4;
+	/* lr @ irq: initialize to anything */
 	*(volatile uint32_t *)p_ptr->curr_stkptr = 0x00000009; /* lr @ irq */
 	p_ptr->curr_stkptr -= 4;
+	/* r12 @ irq: initialize to anything */
 	*(volatile uint32_t *)p_ptr->curr_stkptr = 0xAAAAAAAA; /* r12 @ irq */
 	p_ptr->curr_stkptr -= 16;  // skip r0-r3 (b/c no init values)
-	*(volatile uint32_t *)p_ptr->curr_stkptr = 0xBAD06969; /* r0 @ irq */
-	// ^ test value
+	/* r3-r0 @ irq: initialize to start function args, if any */
+	*(volatile uint32_t *)p_ptr->curr_stkptr = 0xBAD06969;
+	// ^ test value for r0 to check that frame is correctly loaded
 
 	/* below unneeded if using PSP */
 	// *(volatile uint32_t *)p_ptr->curr_stkptr = 0xFFFFFFF9; /* EXC_RETURN */

@@ -62,12 +62,16 @@ void mem_init()
 	nxt_stk_base = sys_stk_base;
 }
 
+// code adapted from 379 library subroutine timer_interrupt_init
+// TODO: Switch to using systick
 void sched_timer_init()
 {
-	// code adapted from 379 library subroutine timer_interrupt_init
-	*(volatile uint8_t *) (0x400FE604) |= 0x01;  // turn on Timer 0
+	*(volatile uint8_t *) (0x400FE604) |= 0x01;  // turn on/ enable Timer 0
+	/* Need to wait 3 clock cycles for Timer 0 module to be enabled */
 	int i=0;
-	for (i; i<2; ++i); // delay ??
+	for (i; i<2; ++i);
+
+	/* Configure Timer 0 to be our scheduler interrupt */
 	*(volatile uint8_t *) (0x4003000C) &= 0xFE;  // clear bit => disable
 	*(volatile uint8_t *) (0x40030000) &= 0xFC;  // set to 32-bit mode
 	*(volatile uint8_t *) (0x40030004) &= 0xFE;  // set to periodic mode:
