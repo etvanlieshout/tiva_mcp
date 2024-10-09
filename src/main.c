@@ -4,6 +4,6 @@
  */
 int main(void)
 {
-	multitasking_init();
+	mcp_init();
 	return 0;
 }

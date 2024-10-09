@@ -62,24 +62,21 @@ int create(
 	 * TOTAL: 29 words
 	 */
 	*(volatile uint32_t *)p_ptr->curr_stkptr = 0x00000000; /* xPSR @ irq */
-	p_ptr->stkptr -= 4;
+	p_ptr->curr_stkptr -= 4;
 	*(volatile uint32_t *)p_ptr->curr_stkptr = startaddr; /* pc @ irq */
 	                                                      /* code resumes from
 														   * here*/
-	p_ptr->stkptr -= 4;
+	p_ptr->curr_stkptr -= 4;
 	*(volatile uint32_t *)p_ptr->curr_stkptr = 0x00000009; /* lr @ irq */
-	p_ptr->stkptr -= 4;
+	p_ptr->curr_stkptr -= 4;
 	*(volatile uint32_t *)p_ptr->curr_stkptr = 0xAAAAAAAA; /* r12 @ irq */
-	p_ptr->stkptr -= 16;  // skip r0-r3 (b/c no init values)
+	p_ptr->curr_stkptr -= 16;  // skip r0-r3 (b/c no init values)
 
 	*(volatile uint32_t *)p_ptr->curr_stkptr = 0xFFFFFFF9; /* EXC_RETURN */
-	p_ptr->stkptr -= 8;
+	p_ptr->curr_stkptr -= 8;
 
-	p_ptr->stkptr -= 20;  // skip reschedule space ?
-	p_ptr->stkptr -= 14*4;  // skip registers
-=======
-	*((volatile uint32_t *)(p_ptr->curr_stkptr) - 13) = startaddr;
->>>>>>> 5236b9a43d9c4c33f2d209c344312484d226eb81
+	p_ptr->curr_stkptr -= 20;  // skip reschedule space ?
+	p_ptr->curr_stkptr -= 14*4;  // skip registers
 
 	// set process program counter start addr
 	p_ptr->proc_pc = startaddr; // not necessary, but does nothing

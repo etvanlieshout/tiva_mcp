@@ -15,7 +15,7 @@ void reschedule()
 	int cpsr_state;
 
 	/* diable interrupts */
-	int cpsr_state = disable_i();
+	cpsr_state = disable_i();
 
 	old_p = &process_table[curr_pid];
 
