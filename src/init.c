@@ -21,21 +21,25 @@ void mcp_init()
 	curr_pid = 0;
 
 	// turn on on-board (blue) led to verify reschedule irq
-	led_init();
+	//led_init();
 
 	// First, create a main process; this one will do nothing
 	char *proc_name = "mcp_base_proc";
-	create(&mcp_run, 256, 1, proc_name, 0);
-
+	create(&mcp_run, 256, 2, proc_name, 0); // set lowest priority
 	// switch to PSP
+	psp_set((&process_table[0])->curr_stkptr); // mcp_proc always has pid 0
 
-	sched_timer_init();
+	svc_call();
+
+	//sched_timer_init();
 	while (1)
 		; // keeps program alive until reschedule timer triggers
 }
 
 void mcp_run()
 {
+	sched_timer_init();
+
 	// run led_init, the create 2 processes: red & blue
 	// OR: run led_init as a process and kill it (harder)
 	// OR: put led_init inside red() & blue() (easy)
@@ -73,4 +77,11 @@ void sched_timer_init()
 	*(volatile uint8_t *) (0x40030018) |= 0x01;  // enable mcu interrupt
 	*(volatile uint32_t *)(0xE000E100) |= 0x80000; //mcu accept tmr intrupt
 	*(volatile uint8_t *) (0x4003000C) |= 0x01;  // enable timer
+}
+
+void start_mcp_proc()
+{
+	// switch to PSP
+	//psp_set((&process_table[0])->curr_stkptr); // mcp_proc always has pid 0
+	contxt_sw(msp_get,&((&process_table[0])->curr_stkptr));
 }

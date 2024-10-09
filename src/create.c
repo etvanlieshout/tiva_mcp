@@ -71,15 +71,18 @@ int create(
 	p_ptr->curr_stkptr -= 4;
 	*(volatile uint32_t *)p_ptr->curr_stkptr = 0xAAAAAAAA; /* r12 @ irq */
 	p_ptr->curr_stkptr -= 16;  // skip r0-r3 (b/c no init values)
+	*(volatile uint32_t *)p_ptr->curr_stkptr = 0xBAD06969; /* r0 @ irq */
+	// ^ test value
 
-	*(volatile uint32_t *)p_ptr->curr_stkptr = 0xFFFFFFF9; /* EXC_RETURN */
-	p_ptr->curr_stkptr -= 8;
+	/* below unneeded if using PSP */
+	// *(volatile uint32_t *)p_ptr->curr_stkptr = 0xFFFFFFF9; /* EXC_RETURN */
+	//p_ptr->curr_stkptr -= 8;
 
-	p_ptr->curr_stkptr -= 20;  // skip reschedule space ?
-	p_ptr->curr_stkptr -= 14*4;  // skip registers
+	//p_ptr->curr_stkptr -= 20;  // skip reschedule space ?
+	//p_ptr->curr_stkptr -= 14*4;  // skip registers
 
 	// set process program counter start addr
-	p_ptr->proc_pc = startaddr; // not necessary, but does nothing
+	//p_ptr->proc_pc = startaddr; // not necessary, but does nothing
 
 	// put process on ready queue
 	q_insert(READYQ, pid, p_ptr->priority);

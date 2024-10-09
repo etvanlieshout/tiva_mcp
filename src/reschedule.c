@@ -49,15 +49,15 @@ void	resched_timer_isr()
 	*(volatile uint32_t *)(0x40030024) |= 0x1;
 
 	// blinks an LED to verify irq
-	*(volatile uint8_t *)(0x40025010) ^= 0x04;
+	//*(volatile uint8_t *)(0x40025010) ^= 0x04;
 
 	// disable interrupts
-	//int cpsr_state = disable_i();
+	int cpsr_state = disable_i();
 
 	reschedule();
 
 	// restore and enable interrupts
-	//restore_i(cpsr_state);
+	restore_i(cpsr_state);
 	enable_i();
 	return;
 }
