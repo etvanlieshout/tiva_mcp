@@ -6,7 +6,8 @@
 #define	_QUEUE_H
 
 #define TABLESZ	(NUMPROC + 2) //size of q data struct
-#define READYQ	NUMPROC       //marks head node of ready queue
+#define READYQ	NUMPROC       //marks head node of ready queue; effectively a
+			      //qid
 
 struct	q_entry	{
 	int	pid; //redundant, but makes life easier
@@ -25,5 +26,6 @@ struct q_entry	queue_table[TABLESZ];
 // queue manipulation funciton prototypes (definied in queue.c)
 int	dequeue(int qid);
 int	q_insert(int qid, int pid, int pri);
+void	q_init(int qid);
 
 #endif

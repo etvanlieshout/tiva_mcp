@@ -3,8 +3,8 @@
  * */
 #include <stdint.h>
 
-#define DELAY_R 4000000
-#define DELAY_B 3000000
+#define DELAY_R 400000
+#define DELAY_B 300000
 
 void blue();
 void red();

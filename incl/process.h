@@ -6,6 +6,10 @@
 #define	_PROCESS_H
 
 #define NUMPROC	10 // max number of processes
+#define PRI_MAX	10
+#define PRI_BOUND (PRI_MAX + 1) // used as limiting bound
+#define MCPCTRL	5  // number of switches before scheduler forces main MCP
+		   // process to run
 
 /* process states */
 #define	P_FREE	0
@@ -27,6 +31,7 @@ struct process	process_table[NUMPROC];
 int	curr_pid;
 int	process_count;
 int	free_pid; // next free pid for new processes
+int	reschedule_count;
 void	*contxt_sw(void *old_stk, void *new_stk);
 int create(
 		void	*startaddr,  //start addr of process code (ie fn addr)

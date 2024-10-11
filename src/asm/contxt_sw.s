@@ -7,7 +7,7 @@
 	.global restore_i
 
 contxt_sw:
-	PUSH	{r0-r12, lr}
+	;PUSH	{r0-r12, lr}
 	;PUSH	{lr}            ; WTF IS THIS ??? WHY PUSH TWICE?
 	;MRS	r2, XPSR
 	;PUSH	{r2}
@@ -18,6 +18,6 @@ contxt_sw:
 	;POP	{r0}
 	;BL	restore_i
 	;POP	{lr}
-	POP	{r0-r12, lr}
+	;POP	{r0-r12, lr}
 	MOV	pc, lr
 
