@@ -1,4 +1,9 @@
-; subroutines for enabling, disabling, and restoring interrupts & CPSR
+;===============================================================================
+;	Interrupt & status assembly code
+;
+; Subroutines for enabling, disabling, and restoring interrupts & CPSR
+;===============================================================================
+
 
 	.text
 

@@ -1,11 +1,24 @@
-/* stack.c
- * all stack manipulation functions used by create & kill, etc to set up
- * process stacks
+/* ===========================================================================*\
+ * stack.c
+ *
+ * Stack manipulation functions used by syscall create() to set up new process
+ * stack spaces.
+ *
+ * CONTENTS:
+ * stack()
  */
 
 #include <mcp.h>
 
-// assumes interrupts disabled, and that size is a multiple of 8
+/* -- new_stack ----------------------------------------------------------------
+ * Get new stack of specified size for a process.
+ *
+ * ARGS: int size: Requested size of new stack in bytes.
+ * Return: void * pointer to new stack base addr
+ *
+ * NOTES:
+ * Assumes interrupts disabled, and that size is valid.
+ */
 void *new_stack(int size)
 {
 	void	*new_stk_ptr = nxt_stk_base; // holds addr for new stack

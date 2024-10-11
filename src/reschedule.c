@@ -1,38 +1,54 @@
-/* reschedule.c
- * reschedule() - gives cpu to next process by selecting next process, updating
- * any system variables, and calling context switch.
- * ASSUMES INTERRUPTS DISABLED.
- */
+/* ===========================================================================*\
+ * reschedule.c
+ *
+ * Contains scheduler code
+ *
+ * Contents:
+ * reschedule()
+ * resched_timer_isr()
+ *============================================================================*/
 
 #include <mcp.h>
 
-/* this is a simple scheduler that just pulls from the ready queue and swaps
+/* -- Reschedule() -------------------------------------------------------------
+ * This is a simple scheduler that just pulls from the ready queue and swaps
  * processes if the head of the ready queue has equally or greater priority
- * than the currently running process. ASSUMES interrupts disabled */
+ * than the currently running process. To ensure that the main mcp control flow
+ * gets cpu time, a counter tracks reschdule calls and after a certain number
+ * of calls the schedule ignores the ready queue and gives the cpu to the main
+ * mcp process.
+ *
+ * ARGS: None
+ * Return: None
+ *
+ * NOTES:
+ * ASSUMES INTERRUPTS ARE DISABLED; Should only be called from within a syscall
+ */
 void reschedule()
 {
 	struct process *old_p, *new_p;
 	int cpsr_state;
 
-	/* diable interrupts */
-	//cpsr_state = disable_i();
-
 	old_p = &process_table[curr_pid];
 
 	// check if current process remains eligible for cpu
 	if (old_p->state == P_CURR){
-		//if ((old_p->priority < queue_table[QFIRST(READYQ)].priority) &&
-		//	(queue_table[QFIRST(READYQ)].pid < QHEAD(READYQ))) {
-		if (old_p->priority < queue_table[QFIRST(READYQ)].priority &&
-			reschedule_count++ < MCPCTRL) {
+		if (reschedule_count++ < MCPCTRL &&
+			old_p->priority < queue_table[QFIRST(READYQ)].priority) {
 			return; // current process still has highest priority
 		}
-		old_p->state = P_READY; // current process moved to ready queue
-		q_insert(READYQ, old_p->pid, old_p->priority);
+		// current process status becomes READY;
+		// if not base_mcp_proc, then re-insert into queue; base_mcp_proc is
+		// never removed from final position of ready queue, and so should not
+		// be re-added each time it yeilds the cpu.
+		old_p->state = P_READY;
+		if (old_p->pid != 0) {
+			q_insert(READYQ, old_p->pid, old_p->priority);
+		}
 	}
 
 	// get new process:
-	// check if mcp needs to run (b/c it is low priority)
+	// check if mcp needs to run (b/c it is always lowest priority)
 	if (reschedule_count == MCPCTRL) {
 		new_p = &process_table[0];
 		reschedule_count = 0;
@@ -44,23 +60,27 @@ void reschedule()
 	new_p->state = P_CURR;
 	curr_pid = new_p->pid;
 
-	//preempt = QUANTUM; //reset reschedule interrupt timer
 
 	contxt_sw(&old_p->curr_stkptr, &new_p->curr_stkptr);
 
-	//restore_i(cpsr_state);
 
 	// when old_p next resumes, it will pick up here
 	return;
 }
 
+/* -- resched_timer_isr --------------------------------------------------------
+ * Interrupt handler for timer irq. Timer irq triggers at a set interval and 
+ * calls the scheduler logic via reschedule()
+ *
+ * NOTES:
+ * Because the ARM interrupt process only preserves r0-r3 & r12, this code
+ * should call a yet-to-be-written function that will prserve r4-r11 on process
+ * stack.
+ */
 void	resched_timer_isr()
 {
 	// clear interrupt
 	*(volatile uint32_t *)(0x40030024) |= 0x1;
-
-	// blinks an LED to verify irq
-	//*(volatile uint8_t *)(0x40025010) ^= 0x04;
 
 	// disable interrupts
 	int cpsr_state = disable_i();
@@ -70,6 +90,7 @@ void	resched_timer_isr()
 	// restore and enable interrupts
 	restore_i(cpsr_state);
 	enable_i();
+
 	return;
 }
 

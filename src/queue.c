@@ -1,10 +1,22 @@
-/* queue.c
- * defines queue manipulation functions for ready q and others
- * dequeue(), insert()
+/* ===========================================================================*\
+ * queue.c
+ *
+ * Defines queue manipulation functions for ready Q (and other, future queues)
+ *
+ * Contents:
+ * dequeue()
+ * q_insert()
+ * q_init()
+ *
+ * NOTES:
+ * Assumed to be called from within syscalls
  */
 
 #include <mcp.h>
 
+/* -- dequeue ------------------------------------------------------------------
+ * Removes first item in queue
+ */
 int	dequeue(q)
 {
 	int pid = queue_table[QFIRST(q)].pid;
@@ -16,17 +28,20 @@ int	dequeue(q)
 	return pid;
 }
 
-// makes no check on validity of params
+/* -- q_insert -----------------------------------------------------------------
+ * Inserts new process into queue. Position determined by priority. makes no
+ * check on validity of params.
+ *
+ * ARGS:
+ * q: integer identifying QHEAD
+ *
+ * NOTES:
+ * Queue structure: Fixed HEAD & TAIL nodes, empty queue is HEAD + TAIL
+ */
 int	q_insert(q, pid, pri)
 {
-	//traverse queue for insertion position
+	// Get head of queue specified by q arg
 	struct q_entry temp = queue_table[QHEAD(q)];
-	//while (queue_table[temp.next].pid >= 0) {
-	//	if (queue_table[temp.next].priority > pri) {
-	//		break;
-	//	}
-	//	temp = queue_table[temp.next];
-	//}
 
 	// cycle through queue to find insertion position
 	while (queue_table[temp.next].pid < QTAIL(q)) {
@@ -47,13 +62,17 @@ int	q_insert(q, pid, pri)
 	return pid;
 }
 
+/* -- q_init -------------------------------------------------------------------
+ */
 void q_init(int qid)
 {
+	// Initialize Head of queue
 	queue_table[QHEAD(qid)].pid = QHEAD(qid);
 	queue_table[QHEAD(qid)].priority = -1;
 	queue_table[QHEAD(qid)].next = QTAIL(qid);
 	queue_table[QHEAD(qid)].prev = -1;
 
+	// Initialize Tail of queue
 	queue_table[QTAIL(qid)].pid = QTAIL(qid);
 	queue_table[QTAIL(qid)].priority = PRI_BOUND+1;
 	queue_table[QTAIL(qid)].next = -1;

@@ -1,13 +1,19 @@
-/* create.c
- * create and kill processes with
- * create() and kill()
+/* ===========================================================================*\
+ * create.c
+ *
+ * create and kill processes with create() and kill()
+ *
+ * NOTE: Only a bare-bones version of create() has been implemented; kill() not
+ * implemented at all.
  */
 
 #include <mcp.h>
 
-// syscall create: creates new process and puts it on the ready list
-// THIS FIRST IMPLEMENTATION ASSUMES EVERYTHING IS VALID AND DOESN'T PROCESS ANY
-// ARGS GIVEN FOR PROCESS
+/* -- create() [SYSCALL] -------------------------------------------------------
+ * syscall create: creates new process and puts it on the ready list
+ * THIS FIRST IMPLEMENTATION ASSUMES EVERYTHING IS VALID AND DOESN'T PROCESS ANY
+ * ARGS GIVEN FOR PROCESS
+ * */
 int create(
 		void	*startaddr,  //start addr of process code (ie fn addr)
 		int	stk_size,
@@ -17,10 +23,10 @@ int create(
 		...
 	  )
 {
-	int	cspr_restore;
-	struct	process	*p_ptr;
-	char	*argv;          // pointer to list of args
-	void	**stk_addr;
+	int	cspr_restore;       // Var to store processor status register
+	struct	process	*p_ptr; // pointer to new process struct in proc table
+	char	*argv;          // UNUSED; pointer to list of args
+	void	**stk_addr;     // UNUSED
 
 	cspr_restore = disable_i();
 
@@ -28,6 +34,7 @@ int create(
 	// check stack size & stk addr are multiples of 8
 	// check priority is valid
 	
+	/* get new pid, adjust process mgmt globals, set up process struct */
 	int pid = free_pid++;
 	++process_count;
 	p_ptr = &process_table[pid];
@@ -42,18 +49,14 @@ int create(
 	name_entry = '\0';
 	
 	// set up new stack
-	p_ptr->base_stkptr = new_stack(stk_size); // new syscall to write
+	p_ptr->base_stkptr = new_stack(stk_size);
 	p_ptr->curr_stkptr = p_ptr->base_stkptr;
 
-	// need to set up the stack to look like what the context switch code
-	// expects; have to push some bogus stuff (+ initial args) and set
-	// the location where ctxsw pulls the pc from to the startaddr.
-	// In contxt_sw, each frame on stack is 14 words, & pc is located @ 14th
-	// word. (so: offset of 13 words).
-	//*(volatile uint32_t *)p_ptr->curr_stkptr - 13 = startaddr;
-
-	/* Set up inital stack frame:
-	 * 8-words frame to mimic IRQ handler push: XPSR, pc, lr, r12, r3-r0 */
+	/* Set up inital stack frame to look like the expected interrupt and context
+	 * frame.
+	 * 8-words frame to mimic IRQ handler push: XPSR, pc, lr, r12, r3-r0
+	 * TODO: consider r4-r11 after updating rescheduling code to preserve these
+	 */
 
 	/* PSR @ irq: set to default reset value */
 	*(volatile uint32_t *)p_ptr->curr_stkptr = 0x01000000;
@@ -71,19 +74,13 @@ int create(
 	*(volatile uint32_t *)p_ptr->curr_stkptr = 0xBAD06969;
 	// ^ test value for r0 to check that frame is correctly loaded
 
-	/* below unneeded if using PSP */
-	// *(volatile uint32_t *)p_ptr->curr_stkptr = 0xFFFFFFF9; /* EXC_RETURN */
-	//p_ptr->curr_stkptr -= 8;
-
-	//p_ptr->curr_stkptr -= 20;  // skip reschedule space ?
-	//p_ptr->curr_stkptr -= 14*4;  // skip registers
-
 	// set process program counter start addr
 	//p_ptr->proc_pc = startaddr; // not necessary, but does nothing
 
 	// put process on ready queue
 	q_insert(READYQ, pid, p_ptr->priority);
 
+	// restore & enable interrupts, then return
 	restore_i(cspr_restore);
 	enable_i();
 	return pid;
