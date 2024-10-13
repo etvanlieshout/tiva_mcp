@@ -27,5 +27,6 @@ struct q_entry	queue_table[TABLESZ];
 int	dequeue(int qid);
 int	q_insert(int qid, int pid, int pri);
 void	q_init(int qid);
+void q_remove(int qid, int pid);
 
 #endif

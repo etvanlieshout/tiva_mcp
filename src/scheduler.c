@@ -29,11 +29,13 @@ void reschedule()
 	struct process *old_p, *new_p;
 	int cpsr_state;
 
+	++reschedule_count;
+
 	old_p = &process_table[curr_pid];
 
 	// check if current process remains eligible for cpu
 	if (old_p->state == P_CURR){
-		if (reschedule_count++ < MCPCTRL &&
+		if (reschedule_count < MCPCTRL &&
 			old_p->priority < queue_table[QFIRST(READYQ)].priority) {
 			return; // current process still has highest priority
 		}
@@ -49,7 +51,7 @@ void reschedule()
 
 	// get new process:
 	// check if mcp needs to run (b/c it is always lowest priority)
-	if (reschedule_count == MCPCTRL) {
+	if (reschedule_count >= MCPCTRL) {
 		new_p = &process_table[0];
 		reschedule_count = 0;
 	}

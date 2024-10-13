@@ -62,6 +62,17 @@ int	q_insert(q, pid, pri)
 	return pid;
 }
 
+/* -- q_remove -----------------------------------------------------------------
+ */
+void q_remove(int qid, int pid)
+{
+	int next = queue_table[pid].next;
+	int prev = queue_table[pid].prev;
+
+	queue_table[prev].next = queue_table[pid].next;
+	queue_table[next].prev = queue_table[pid].prev;
+}
+
 /* -- q_init -------------------------------------------------------------------
  */
 void q_init(int qid)

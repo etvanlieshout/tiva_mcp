@@ -20,10 +20,10 @@ struct process {
 	int	pid;
 	int	state;
 	int	priority;
+	int	stack_size;
 	char	name[16];
 	void	*curr_stkptr;
 	void	*base_stkptr;
-	int	stack_size;
 	void 	*proc_pc;
 };
 
@@ -41,6 +41,7 @@ int create(
 		int	argc,        // number of args to be passed to start fn
 		...
 	  );
-//void    reschedule();
+void	proc_exit();
+int	kill(int pid);
 
 #endif

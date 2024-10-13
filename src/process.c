@@ -65,7 +65,7 @@ int create(
 	*(volatile uint32_t *)p_ptr->curr_stkptr = startaddr;
 	p_ptr->curr_stkptr -= 4;
 	/* lr @ irq: initialize to anything */
-	*(volatile uint32_t *)p_ptr->curr_stkptr = 0x00000009; /* lr @ irq */
+	*(volatile uint32_t *)p_ptr->curr_stkptr = &proc_exit; /* lr @ irq */
 	p_ptr->curr_stkptr -= 4;
 	/* r12 @ irq: initialize to anything */
 	*(volatile uint32_t *)p_ptr->curr_stkptr = 0xAAAAAAAA; /* r12 @ irq */
@@ -93,19 +93,30 @@ int create(
 
 // wrapper for kill that process can exit to; can send exist status to
 // base_mcp_proc (all this is future functionality)
-int proc_exit()
+void proc_exit()
 {
-	return 0;
+	kill(curr_pid); // suicide ??
+	return;
 }
 
-// TODO
+/*
+ * TASKS TODO: Remove process from process table and ready queue.
+ * How to return stack? Also, needs to be more bookkeeping with process
+ * stack space, so that stacks can be made available again after their
+ * process gets killed.
+ */
 int	kill(pid)
 {
-	/*
-	 * TASKS: Remove process from process table and ready queue.
-	 * How to return stack? Also, needs to be more bookkeeping with process
-	 * stack space, so that stacks can be made available again after their
-	 * process gets killed.
-	 */
+	// disable interrupts
+	int cspr_restore = disable_i();
+
+	if (pid != curr_pid) {
+		q_remove(READYQ, pid);
+	}
+	(&process_table[pid])->state = P_FREE;
+
+	// restore & enable interrupts, then return
+	restore_i(cspr_restore);
+	enable_i();
 	return 0;
 }

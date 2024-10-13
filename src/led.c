@@ -13,7 +13,8 @@ void blue()
 {
 	led_init();
 	uint8_t led_state = 0;
-	while (1) {
+	uint8_t counter = 7;
+	while (counter--) {
 		led_state ^= 0x4;
 		*(volatile uint8_t *)(0x40025010) = led_state; // toggle pin 1 (red)
 		// NOTE: 0x010 offset writes only to blue pin
@@ -21,6 +22,8 @@ void blue()
 		for (i; i < DELAY_B; ++i)
 			;
 	}
+	*(volatile uint8_t *)(0x40025010) = 0; // shutoff
+
 	return;
 }
 
