@@ -139,6 +139,8 @@ void svc_handler()
 		case 0xFF:
 			start_mcp_proc();
 			break;
+		case 0xE1:
+			break;
 		default:
 			break;
 	}

@@ -10,6 +10,7 @@
 #include <stack.h>
 #include <process.h>
 #include <queue.h>
+#include <mem.h>
 #include <init.h>
 
 #endif

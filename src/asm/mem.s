@@ -3,15 +3,12 @@
 ;===============================================================================
 
 	.data	; mem begins @ 0x20000000; 32 KB available (Total SRAM)
-sys:	.space	0x400	; Set aside 1KB for scheduler & proc mgmt system.
-			; This leaves space for all data structs, vars, & some
-			; reserved stack space for...scheduler / sys calls?
 
-sysend:	.space	0x1600	; Label to mark end of system allocation and bump
+mcpmem:	.space	0x1FFF	; Label to mark top of system allocation and bump
 			; next label to top of user mem, since stack grows down
 
 usrmem:	.word	0x0	; Label to mark the start of user process memory/
-			; stack space; this allocated space is 4 KB for now
+			; stack space; this allocated space is 8 KB for now
 
 	.text
 	.global	init_usrmem

@@ -14,6 +14,15 @@ void blue()
 	led_init();
 	uint8_t led_state = 0;
 	uint8_t counter = 77;
+
+	// Test allocator
+	uint32_t *ptr1 = alloc(24);
+	uint32_t *ptr2 = alloc(16);
+	*ptr2     = 0x66666666;
+	*(ptr2+1) = 0x99999999;
+	*(ptr2+2) = 0x66666666;
+	*(ptr2+3) = 0x99999999;
+
 	while (counter--) {
 	//while (1) {
 		led_state ^= 0x4;
@@ -25,6 +34,10 @@ void blue()
 	}
 	*(volatile uint8_t *)(0x40025010) = 0; // shutoff
 
+	// test heap rest + manual heap management
+	heap_reset();
+	alloc_copy(ptr2);
+
 	return;
 }
 
@@ -32,6 +45,7 @@ void red()
 {
 	led_init();
 	uint8_t led_state = 0;
+
 	while (1) {
 		led_state ^= 0x2;
 		*(volatile uint8_t *)(0x40025008) = led_state; // toggle pin 1 (red)

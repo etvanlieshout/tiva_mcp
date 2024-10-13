@@ -51,6 +51,12 @@ int create(
 	// set up new stack
 	p_ptr->base_stkptr = new_stack(stk_size);
 	p_ptr->curr_stkptr = p_ptr->base_stkptr;
+	p_ptr->heap_base = p_ptr->base_stkptr - (stk_size - 8); // -8 preserves
+															// alignment &
+															// prevents heap
+															// base overlapping
+															// next stack
+	p_ptr->curr_heap = p_ptr->heap_base;
 
 	/* Set up inital stack frame to look like the expected interrupt and context
 	 * frame.

@@ -24,6 +24,8 @@ struct process {
 	char	name[16];
 	void	*curr_stkptr;
 	void	*base_stkptr;
+	void	*heap_base;
+	void	*curr_heap;
 	void 	*proc_pc;
 };
 
