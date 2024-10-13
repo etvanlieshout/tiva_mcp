@@ -36,10 +36,20 @@ void mcp_run()
 	create(&blue, 512, 1, blue_proc, 0);
 	
 	/* keep main mcp_proc alive */
+	uint16_t a = 1; // for testing process kill
+	uint16_t b = 1;
 	while (1) {
-		;	// can add book-keeping an other things here later.
-			// eg could have it print current proc name to debug term?
+		a++;	// can add book-keeping an other things here later.
+		if (a == 0) {
+			b++; // eg could have it print current proc name to debug term?
+			if (b++ == 100)
+				kill(1); // kill process pid = 1
+		}
+		if (b > 100)
+			break;
 	}
+	while(1)
+		;
 }
 
 /* -- mcp_init -----------------------------------------------------------------

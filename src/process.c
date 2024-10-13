@@ -92,11 +92,12 @@ int create(
 }
 
 // wrapper for kill that process can exit to; can send exist status to
-// base_mcp_proc (all this is future functionality)
+// base_mcp_proc (this is future functionality)
 void proc_exit()
 {
-	kill(curr_pid); // suicide ??
-	return;
+	kill(curr_pid);
+	while(1) ;	// spin here until process removed from scheduling on next call
+				// to reschedule
 }
 
 /*
