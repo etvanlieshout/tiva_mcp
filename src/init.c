@@ -28,8 +28,6 @@ extern void led_init();
  * */
 void mcp_run()
 {
-	sched_timer_init();
-
 	/* Start of user code */
 	/* Red and Blue processes included for testing */
 	char* red_proc = "red";
@@ -62,16 +60,15 @@ void mcp_init()
 	// Initialize ready Q:
 	q_init(READYQ);
 
-	// First, create a main process; this one will do nothing
+	// Create the main mcp process
 	char *proc_name = "mcp_base_proc";
-	create(&mcp_run, 256, 2, proc_name, 0); // set lowest priority
-	// switch to PSP (Should this also reset MSP? I'm thinking no, but...)
-	psp_set((&process_table[0])->curr_stkptr); // mcp_proc always has pid 0
+	create(&mcp_run, 256, PRI_MAX, proc_name, 0); // set lowest priority
 
-	svc_call();
+	// switch to PSP & init PSP to MSP-8 for balance.
+	// The -8 is used to avoid inadvertent stack smashing within svc_handler.
+	psp_init(msp_get()-8);
 
-	while (1)
-		; // keeps program alive until reschedule timer triggers
+	mcp_start(); // execution will never return to here
 }
 
 
@@ -101,8 +98,8 @@ void sched_timer_init()
 	*(volatile uint8_t *) (0x40030000) &= 0xFC;  // set to 32-bit mode
 	*(volatile uint8_t *) (0x40030004) &= 0xFE;  // set to periodic mode:
 	*(volatile uint8_t *) (0x40030004) |= 0x02;  // write 0b10 to low bits
-	//*(volatile uint32_t *)(0x40030028)  = 0x27100; // 160,000 = 0.01s period
-	*(volatile uint32_t *)(0x40030028)  = 0x1E8480; // 2M = 1/8 sec period
+	*(volatile uint32_t *)(0x40030028)  = 0x27100; // 160,000 = 0.01s period
+	//*(volatile uint32_t *)(0x40030028)  = 0x1E8480; // 2M = 1/8 sec period
 	//*(volatile uint32_t *)(0x40030028)  = 0x7A1200; // 8M = 1/2 sec period
 	*(volatile uint8_t *) (0x40030018) |= 0x01;  // enable mcu interrupt
 	*(volatile uint32_t *)(0xE000E100) |= 0x80000; //mcu accept tmr intrupt
@@ -110,11 +107,29 @@ void sched_timer_init()
 }
 
 /* -- start_mcp_proc() ---------------------------------------------------------
- * Sets systems PSP to point to the main_mcp_proc's stack via contxt_sw. Called
- * by the SVC handler to start base_mcp_proc's main mcp_run control flow.
+ * Called by the SVC handler to start base_mcp_proc's main mcp_run control flow.
+ * Sets systems PSP to point to the main_mcp_proc's stack. Pops top 8 words of
+ * initial stack; handler return will pop remaining process stack into context.
  */
 void start_mcp_proc()
 {
-	// Update to just use the same pointer in both args (makes more sense)
-	contxt_sw(msp_get,&((&process_table[0])->curr_stkptr));
+	sched_timer_init();
+	psp_set((&process_table[0])->curr_stkptr); // mcp_proc always has pid 0
+	vreg_restore();
+}
+
+/* -- SVC Handler ---------------------------------------------------------
+ * Handler for SVC. Extracts immediate value and takes action accordingly.
+ */
+void svc_handler()
+{
+	uint8_t svc_code = svc_code_get();
+
+	switch (svc_code) {
+		case 0xFF:
+			start_mcp_proc();
+			break;
+		default:
+			break;
+	}
 }

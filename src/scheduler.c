@@ -85,7 +85,9 @@ void	resched_timer_isr()
 	// disable interrupts
 	int cpsr_state = disable_i();
 
+	vreg_preserve();
 	reschedule();
+	vreg_restore();
 
 	// restore and enable interrupts
 	restore_i(cpsr_state);

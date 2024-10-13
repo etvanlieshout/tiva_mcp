@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include <sys_constants.h>
 #include <interrupt_ctrl.h>
-#include <reschedule.h>
+#include <scheduler.h>
 #include <stack.h>
 #include <process.h>
 #include <queue.h>

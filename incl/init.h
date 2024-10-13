@@ -11,9 +11,13 @@ void mcp_run();
 void sched_timer_init();
 void *init_usrmem();
 void start_mcp_proc();
+void svc_handler();
 
+extern void psp_init(void *sp);
 extern void psp_set(void *sp);
-extern void msp_get();
-//extern void start_mcp_proc();
+extern void *msp_get();
+extern void mcp_start();
+extern uint8_t svc_code_get();
+//extern void mcp_svc_test();
 
 #endif

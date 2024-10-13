@@ -1,5 +1,5 @@
 /* ===========================================================================*\
- * create.c
+ * process.c
  *
  * create and kill processes with create() and kill()
  *
@@ -35,7 +35,7 @@ int create(
 	// check priority is valid
 	
 	/* get new pid, adjust process mgmt globals, set up process struct */
-	int pid = free_pid++;
+	int pid = free_pid++; // needs to be more sophisticated (search proc table)
 	++process_count;
 	p_ptr = &process_table[pid];
 
@@ -74,6 +74,11 @@ int create(
 	*(volatile uint32_t *)p_ptr->curr_stkptr = 0xBAD06969;
 	// ^ test value for r0 to check that frame is correctly loaded
 
+	/* leave space for r4-r11 */
+	p_ptr->curr_stkptr -= 32;  // skip r4-r11 (b/c no init values)
+	*(volatile uint32_t *)p_ptr->curr_stkptr = 0x1111ABBA;
+	// ^ test value for r4 to check that frame is correctly loaded
+
 	// set process program counter start addr
 	//p_ptr->proc_pc = startaddr; // not necessary, but does nothing
 
@@ -86,8 +91,21 @@ int create(
 	return pid;
 }
 
+// wrapper for kill that process can exit to; can send exist status to
+// base_mcp_proc (all this is future functionality)
+int proc_exit()
+{
+	return 0;
+}
+
 // TODO
 int	kill(pid)
 {
+	/*
+	 * TASKS: Remove process from process table and ready queue.
+	 * How to return stack? Also, needs to be more bookkeeping with process
+	 * stack space, so that stacks can be made available again after their
+	 * process gets killed.
+	 */
 	return 0;
 }
