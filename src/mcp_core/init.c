@@ -26,31 +26,32 @@ extern void led_init();
 /* -- mcp_run ------------------------------------------------------------------
  * Primary mcp process code begins here. Effectively main() within the mcp.
  * */
-void mcp_run()
-{
-	/* Start of user code */
-	/* Red and Blue processes included for testing */
-	char* red_proc = "red";
-	create(&red, 512, 1, red_proc, 0);
-	char* blue_proc = "blue";
-	create(&blue, 512, 1, blue_proc, 0);
-	
-	/* keep main mcp_proc alive */
-	uint16_t a = 1; // for testing process kill
-	uint16_t b = 1;
-	while (1) {
-		a++;	// can add book-keeping an other things here later.
-		if (a == 0) {
-			b++; // eg could have it print current proc name to debug term?
-			if (b++ == 100)
-				kill(1); // kill process pid = 1
-		}
-		if (b > 100)
-			break;
-	}
-	while(1)
-		;
-}
+
+//void mcp_run()
+//{
+//	/* Start of user code */
+//	/* Red and Blue processes included for testing */
+//	char* red_proc = "red";
+//	create(&red, 512, 1, red_proc, 0);
+//	char* blue_proc = "blue";
+//	create(&blue, 512, 1, blue_proc, 0);
+//	
+//	/* keep main mcp_proc alive */
+//	uint16_t a = 1; // for testing process kill
+//	uint16_t b = 1;
+//	while (1) {
+//		a++;	// can add book-keeping an other things here later.
+//		if (a == 0) {
+//			b++; // eg could have it print current proc name to debug term?
+//			if (b++ == 100)
+//				kill(1); // kill process pid = 1
+//		}
+//		if (b > 100)
+//			break;
+//	}
+//	while(1)
+//		;
+//}
 
 /* -- mcp_init -----------------------------------------------------------------
  * Initializes memory spaces, process table and ready queue, and then creates
@@ -72,7 +73,7 @@ void mcp_init()
 
 	// Create the main mcp process
 	char *proc_name = "mcp_base_proc";
-	create(&mcp_run, 256, PRI_MAX, proc_name, 0); // set lowest priority
+	create(&mcp_main, 256, PRI_MAX, proc_name, 0); // set lowest priority
 
 	// switch to PSP & init PSP to MSP-8 for balance.
 	// The -8 is used to avoid inadvertent stack smashing within svc_handler.

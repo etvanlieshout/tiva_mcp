@@ -7,7 +7,7 @@
 
 void mcp_init();
 void mem_init();
-void mcp_run();
+void mcp_main();
 void sched_timer_init();
 void *init_usrmem();
 void start_mcp_proc();
