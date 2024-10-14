@@ -39,7 +39,7 @@ void *alloc(uint16_t size)
 
 	if (proc_data->curr_heap + size + 8 < proc_data->curr_stkptr) {
 		ret = proc_data->curr_heap + 8;
-		proc_data->curr_heap = ret + size + 8;
+		proc_data->curr_heap = ret + size;
 		*(uint32_t *)(ret - 4) = size;
 	}
 
