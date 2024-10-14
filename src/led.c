@@ -36,7 +36,7 @@ void blue()
 
 	// test heap rest + manual heap management
 	heap_reset();
-	alloc_copy(ptr2);
+	ptr2 = alloc_copy(ptr2);
 
 	return;
 }

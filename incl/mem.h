@@ -6,7 +6,7 @@
 #define	_MEM_H
 
 void	*alloc(uint16_t size);
-void	*heap_reset();
-void	alloc_copy(void *p);
+void	heap_reset();
+void	*alloc_copy(void *p);
 
 #endif
