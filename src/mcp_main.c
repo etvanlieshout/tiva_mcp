@@ -14,6 +14,8 @@
  */
 
 #include <mcp.h>
+#include <spi.h>
+#include <alice_1502_lcd.h>
 
 // these functions are in led.c and included just for testing
 extern void red();
@@ -26,25 +28,29 @@ extern void led_init();
 void mcp_main()
 {
 	/* Start of user code */
+	tiva_spi *spi2 = spi_init(2);
+	lcd_procmon_start(spi2);
+
 	/* Red and Blue processes included for testing */
 	char* red_proc = "red";
-	create(&red, 512, 1, red_proc, 0);
+	int red_pid = create(&red, 512, 1, red_proc, 0);
 	char* blue_proc = "blue";
-	create(&blue, 512, 1, blue_proc, 0);
+	int blu_pid = create(&blue, 512, 1, blue_proc, 0);
 	
-	/* keep main mcp_proc alive */
-	uint16_t a = 1; // for testing process kill
-	uint16_t b = 1;
-	while (1) {
-		a++;	// can add book-keeping an other things here later.
-		if (a == 0) {
-			b++; // eg could have it print current proc name to debug term?
-			if (b++ == 100)
-				kill(1); // kill process pid = 1
-		}
-		if (b > 100)
-			break;
+
+	/* keep main mcp_proc alive + bookkeeping, &c. */
+
+	uint32_t a = 1; // for testing process kill
+	uint8_t  procmon_count = 0;
+	while(1) {
+
+		/* Update fun process monitor lcd display */
+		if (procmon_count - process_count) // if not equal
+			lcd_procmon_update(spi2, (uint8_t)process_count);
+
+		/* Test kill() when called by mcp */
+		a++;
+		if (a == 6553600 && process_table[red_pid].state != P_FREE)
+			kill(red_pid);
 	}
-	while(1)
-		;
 }
