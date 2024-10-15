@@ -121,6 +121,7 @@ int	kill(pid)
 		q_remove(READYQ, pid);
 	}
 	(&process_table[pid])->state = P_FREE;
+	process_count--;
 
 	// restore & enable interrupts, then return
 	restore_i(cspr_restore);

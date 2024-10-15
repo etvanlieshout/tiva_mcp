@@ -27,8 +27,8 @@ void lcd_procmon_start(tiva_spi *spi)
 // this assumes: 0 <= pcount < 10
 void lcd_procmon_update(tiva_spi *spi, uint8_t pcount)
 {
-	char cursor_dec = { 0x04, 0x00 }; // shift cursor one place left
-	char num = { (pcount + '0'), 0x00 };
+	char cursor_dec[] = { 0x10, 0x00 }; // shift cursor one place left
+	char num[] = { (pcount + '0'), 0x00 };
 	lcd1502_spi_send(spi, cursor_dec, LCD_CMD);
 	lcd1502_spi_send(spi, num, LCD_DATA);
 }
@@ -38,8 +38,9 @@ void lcd1502_init(tiva_spi *spi)
 	char init_cmds[] = { 0x33, 0x32, // Set lcd to 4-bit mode
 					     0x28,       // Set 2 lines, 5x8 px chars
 					     0x01,       // Clear display
+						 0x0F,
 					     0x06,       // incr cursor after char printed
-					     0x0C, 0x00};// display on, hide curosr
+					     0x0E, 0x00};// display on, hide curosr
 
 	// turn on gpio C to control latch for shift register used by ALICE board
 	gpio_init(GPIO_C);
@@ -102,6 +103,10 @@ void lcd1502_spi_send(tiva_spi *spi, char* data, int dtype)
 		lcd_delay();
 	}
 
+	/* reset heap or pain.
+	 * Luckily, the only allocation I'm using is the spi struct */
+	heap_reset();
+	alloc_copy(spi);
 	return;
 }
 
@@ -123,7 +128,7 @@ static void hct595_outen()
 /* short delay to give 1502 lcd time to respond */
 static void lcd_delay()
 {
-	uint8_t count = 25;
+	uint8_t count = 100;
 	while (count--)
 		;
 
