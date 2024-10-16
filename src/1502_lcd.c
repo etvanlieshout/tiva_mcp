@@ -16,7 +16,7 @@ void lcd_procmon_start(tiva_spi *spi)
 {
 	char *s_row1 = "ACTIVE PROCESS";
 	char *s_row2 = "COUNT: 00";
-	char line2[] = { 0xC0, 0x00 }; // force cursor to start of line 2
+	char line2[] = { 0xC0, 0x06, 0x00 }; // force cursor to start of line 2
 
 	lcd1502_init(spi);
 	lcd1502_spi_send(spi, s_row1, LCD_DATA);
@@ -38,9 +38,9 @@ void lcd1502_init(tiva_spi *spi)
 	char init_cmds[] = { 0x33, 0x32, // Set lcd to 4-bit mode
 					     0x28,       // Set 2 lines, 5x8 px chars
 					     0x01,       // Clear display
-						 0x0F,
+						 0x08,       // Force cursor to start of 1st line
 					     0x06,       // incr cursor after char printed
-					     0x0E, 0x00};// display on, hide curosr
+					     0x0F, 0x00};// display on, hide curosr
 
 	// turn on gpio C to control latch for shift register used by ALICE board
 	gpio_init(GPIO_C);
@@ -65,30 +65,26 @@ void lcd1502_spi_send(tiva_spi *spi, char* data, int dtype)
 	while (data[len] != 0x00)
 		++len;   // this len will be the human count, not index
 	// write command bytes as [nibbles to go over spi] to lcdcbuf buffer:
-	uint16_t buflen = len * 7;
+	uint16_t buflen = len * 4 + 1;
 	char *spibuf = alloc(buflen);
-	spibuf[buflen] = 0x0;
+	spibuf[buflen] = 0xFF;
 
 	while(lentmp < len) {
 		// each nibble sent as 2 bytes, upper sent first
 		uint8_t uppern = data[lentmp] & 0xF0;
 		uint8_t lowern = (data[lentmp] & 0x0F) << 4;
-		uint16_t i = lentmp * 6;
+		uint16_t i = lentmp * 4;
 		if (0 == dtype){ // lcd cmd
 			spibuf[i++] = uppern;
 			spibuf[i++] = uppern | 0x2;
-			spibuf[i++] = uppern;
 			spibuf[i++] = lowern;
-			spibuf[i++] = lowern | 0x2;
-			spibuf[i]   = lowern;
+			spibuf[i]   = lowern | 0x2;
 		}
 		else { // char data to display
 			spibuf[i++] = uppern | 0x1;
 			spibuf[i++] = uppern | 0x3;
-			spibuf[i++] = uppern & 0xF1;  // should really be & 0xF1
 			spibuf[i++] = lowern | 0x1;
-			spibuf[i++] = lowern | 0x3;
-			spibuf[i]   = lowern & 0xF1;
+			spibuf[i]   = lowern | 0x3;
 		}
 		lentmp++;
 	}
@@ -102,6 +98,7 @@ void lcd1502_spi_send(tiva_spi *spi, char* data, int dtype)
 		hct595_outen();
 		lcd_delay();
 	}
+	//hct595_outdis(); // just to keep noise away from lcd
 
 	/* reset heap or pain.
 	 * Luckily, the only allocation I'm using is the spi struct */
@@ -128,7 +125,7 @@ static void hct595_outen()
 /* short delay to give 1502 lcd time to respond */
 static void lcd_delay()
 {
-	uint8_t count = 100;
+	uint8_t count = 250;
 	while (count--)
 		;
 

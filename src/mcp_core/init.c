@@ -73,7 +73,7 @@ void mcp_init()
 
 	// Create the main mcp process
 	char *proc_name = "mcp_base_proc";
-	create(&mcp_main, 2048, PRI_MAX, proc_name, 0); // set lowest priority
+	create(&mcp_main, 512, PRI_MAX, proc_name, 0); // set lowest priority
 
 	// switch to PSP & init PSP to MSP-8 for balance.
 	// The -8 is used to avoid inadvertent stack smashing within svc_handler.
