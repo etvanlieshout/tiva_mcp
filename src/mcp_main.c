@@ -28,8 +28,8 @@ extern void led_init();
 void mcp_main()
 {
 	/* Start of user code */
-	//tiva_spi *spi2 = spi_init(2);
-	//lcd_procmon_start(spi2);
+	tiva_spi *spi2 = spi_init(2);
+	lcd_procmon_start(spi2);
 
 	/* Red and Blue processes included for testing */
 	char* red_proc = "red";
@@ -41,18 +41,20 @@ void mcp_main()
 	/* keep main mcp_proc alive + bookkeeping, &c. */
 
 	uint32_t a = 1; // for testing process kill
-	//uint8_t  procmon_count = 0; // for testing procmon lcd
+	uint8_t  procmon_count = 0; // for testing procmon lcd
 	while(1) {
 
 		/* Update fun process monitor lcd display */
-		//if (procmon_count - process_count) { // if not equal
-		//	lcd_procmon_update(spi2, (uint8_t)process_count);
-		//	procmon_count = process_count;
-		//}
+		if (procmon_count - process_count) { // if not equal
+			lcd_procmon_update(spi2, (uint8_t)process_count);
+			procmon_count = process_count;
+		}
 
 		/* Test kill() when called by mcp */
 		a++;
-		if (a == 6553600 && process_table[red_pid].state != P_FREE)
+		if (a == 3277000 && process_table[red_pid].state != P_FREE) {
 			kill(red_pid);
+			*(volatile uint8_t *)(0x40025008) = 0; // shutoff led
+		}
 	}
 }

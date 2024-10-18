@@ -44,9 +44,10 @@ void reschedule()
 		// never removed from final position of ready queue, and so should not
 		// be re-added each time it yeilds the cpu.
 		old_p->state = P_READY;
-		if (old_p->pid != 0) {
-			q_insert(READYQ, old_p->pid, old_p->priority);
-		}
+		q_insert(READYQ, old_p->pid, old_p->priority);
+		//if (old_p->pid != 0) {
+		//	q_insert(READYQ, old_p->pid, old_p->priority);
+		//}
 	}
 
 	// get new process:
@@ -54,6 +55,7 @@ void reschedule()
 	if (reschedule_count >= MCPCTRL) {
 		new_p = &process_table[0];
 		reschedule_count = 0;
+		q_remove(READYQ, 0); // remove instead of dequeue
 	}
 	else {
 		// get head of ready queue and make it the new current process
@@ -62,6 +64,9 @@ void reschedule()
 	new_p->state = P_CURR;
 	curr_pid = new_p->pid;
 
+	/* for debugging: add watchpoints to these vars*/
+	old_psp = old_p->curr_stkptr;
+	new_psp = new_p->curr_stkptr;
 
 	contxt_sw(&old_p->curr_stkptr, &new_p->curr_stkptr);
 

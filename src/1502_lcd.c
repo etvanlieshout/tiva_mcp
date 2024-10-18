@@ -112,20 +112,20 @@ void lcd1502_spi_send(tiva_spi *spi, char* data, int dtype)
 // puts outputs in high impedence state
 static void hct595_outdis()
 {
-	*((uint8_t *)(GPIOC_BASE + 0x100)) &= ~0x40;
+	*((volatile uint8_t *)(GPIOC_BASE + 0x100)) &= ~0x40;
 }
 
 // for use with alice daughter board lcd config
 // Enables output for hct595 shift reg by writing 1 to its output enable
 static void hct595_outen()
 {
-	*((uint8_t *)(GPIOC_BASE + 0x100)) |= 0x40;
+	*((volatile uint8_t *)(GPIOC_BASE + 0x100)) |= 0x40;
 }
 
 /* short delay to give 1502 lcd time to respond */
 static void lcd_delay()
 {
-	uint8_t count = 250;
+	uint8_t count = 2500;
 	while (count--)
 		;
 

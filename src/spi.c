@@ -87,7 +87,7 @@ tiva_spi *spi_init(uint8_t ssi_num)
 // block until ssi module is idle (and ready to transmit)
 void spi_txwait(tiva_spi *spi)
 {
-	while ((*(uint8_t *)(spi->ssi_base + SSISR) & 0x10) != 0)
+	while ((*(volatile uint8_t *)(spi->ssi_base + SSISR) & 0x10) != 0)
 		;
 
 	return;
