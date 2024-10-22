@@ -19,6 +19,6 @@ void lcd1502_init(tiva_spi *spi);
 void lcd1502_spi_send(tiva_spi *spi, char* data, int dtype);
 static void hct595_outen();
 static void hct595_outdis();
-static void lcd_delay();
+static void lcd_delay(uint32_t c);
 
 #endif

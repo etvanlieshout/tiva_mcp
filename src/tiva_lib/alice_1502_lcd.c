@@ -65,6 +65,7 @@ void lcd1502_init(tiva_spi *spi)
 	return;
 }
 
+
 /* -- lcd1502_spi_send ---------------------------------------------------------
  * General function for sending data to lcd.
  * Takes a tiva_spi struct, byte array, & type (cmd or data).
@@ -79,7 +80,7 @@ void lcd1502_spi_send(tiva_spi *spi, char* data, int dtype)
 	while (data[len] != 0x00)
 		++len;   // this len will be the human count, not index
 	// write command bytes as [nibbles to go over spi] to lcdcbuf buffer:
-	uint16_t buflen = len * 4 + 1;
+	uint16_t buflen = len * 6 + 1;
 	char *spibuf = alloc(buflen);
 	spibuf[buflen] = 0xFF;
 
@@ -87,18 +88,22 @@ void lcd1502_spi_send(tiva_spi *spi, char* data, int dtype)
 		// each nibble sent as 2 bytes, upper sent first
 		uint8_t uppern = data[lentmp] & 0xF0;
 		uint8_t lowern = (data[lentmp] & 0x0F) << 4;
-		uint16_t i = lentmp * 4;
+		uint16_t i = lentmp * 6;
 		if (0 == dtype){ // lcd cmd
 			spibuf[i++] = uppern;
 			spibuf[i++] = uppern | 0x2;
+			spibuf[i++] = uppern;
 			spibuf[i++] = lowern;
-			spibuf[i]   = lowern | 0x2;
+			spibuf[i++] = lowern | 0x2;
+			spibuf[i]   = lowern;
 		}
 		else { // char data to display
 			spibuf[i++] = uppern | 0x1;
 			spibuf[i++] = uppern | 0x3;
+			spibuf[i++] = uppern | 0x1;
 			spibuf[i++] = lowern | 0x1;
-			spibuf[i]   = lowern | 0x3;
+			spibuf[i++] = lowern | 0x3;
+			spibuf[i]   = lowern | 0x1;
 		}
 		lentmp++;
 	}
@@ -110,7 +115,7 @@ void lcd1502_spi_send(tiva_spi *spi, char* data, int dtype)
 		*((volatile uint32_t *)(spi->ssi_base + SSIDATA)) = spibuf[lentmp++];
 		spi_txwait(spi);
 		hct595_outen();
-		lcd_delay();
+		lcd_delay(200);
 	}
 	//hct595_outdis(); // just to keep noise away from lcd
 
@@ -143,9 +148,9 @@ static void hct595_outen()
 /* -- lcd_delay ----------------------------------------------------------------
  * short delay to give 1502 lcd time to respond
  */
-static void lcd_delay()
+static void lcd_delay(uint32_t count)
 {
-	uint8_t count = 2500;
+	//uint8_t count = 2500;
 	while (count--)
 		;
 
