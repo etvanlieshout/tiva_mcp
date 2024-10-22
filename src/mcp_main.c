@@ -11,23 +11,29 @@
  * mcp_main()
  *
  * NOTE: mcp_main() declaration in init.h
- */
+ *============================================================================*/
 
+/* Core MCP header */
 #include <mcp.h>
+
+/* Additional headers to use LCD display on ALICE daughter board */
 #include <spi.h>
 #include <alice_1502_lcd.h>
 
-// these functions are in led.c and included just for testing
+/* these functions are in led_demo.c and included just for testing */
 extern void red();
 extern void blue();
 extern void led_init();
 
 /* -- mcp_main -----------------------------------------------------------------
  * Primary mcp process code begins here.
+ * Included code shows demonstrates system functionality.
  * */
 void mcp_main()
 {
 	/* Start of user code */
+
+	/* Set up fun process monitor LCD display (ALICE daughter board config) */
 	tiva_spi *spi2 = spi_init(2);
 	lcd_procmon_start(spi2);
 
@@ -37,24 +43,25 @@ void mcp_main()
 	char* blue_proc = "blue";
 	int blu_pid = create(&blue, 512, 1, blue_proc, 0);
 	
+	uint32_t a = 1;				/* for testing process kill */
+	uint8_t  procmon_count = 0;	/* for testing procmon lcd */
 
-	/* keep main mcp_proc alive + bookkeeping, &c. */
 
-	uint32_t a = 1; // for testing process kill
-	uint8_t  procmon_count = 0; // for testing procmon lcd
+	/* Eternal loop to keep main mcp_proc alive + bookkeeping, &c. */
+
 	while(1) {
 
-		/* Update fun process monitor lcd display */
+		/* Update process monitor lcd display */
 		if (procmon_count - process_count) { // if not equal
 			lcd_procmon_update(spi2, (uint8_t)process_count);
 			procmon_count = process_count;
 		}
 
-		/* Test kill() when called by mcp */
+		/* TEST: kill() when called by mcp */
 		a++;
 		if (a == 3277000 && process_table[red_pid].state != P_FREE) {
 			kill(red_pid);
-			*(volatile uint8_t *)(0x40025008) = 0; // shutoff led
+			*(volatile uint8_t *)(0x40025008) = 0; /* shutoff led */
 		}
 	}
 }

@@ -5,7 +5,7 @@
  *
  * NOTE: Only a bare-bones version of create() has been implemented; kill() not
  * implemented at all.
- */
+ *============================================================================*/
 
 #include <mcp.h>
 
@@ -77,16 +77,13 @@ int create(
 	*(volatile uint32_t *)p_ptr->curr_stkptr = 0xAAAAAAAA; /* r12 @ irq */
 	p_ptr->curr_stkptr -= 16;  // skip r0-r3 (b/c no init values)
 	/* r3-r0 @ irq: initialize to start function args, if any */
-	*(volatile uint32_t *)p_ptr->curr_stkptr = 0xBAD06969;
+	*(volatile uint32_t *)p_ptr->curr_stkptr = 0xBAD00DAB;
 	// ^ test value for r0 to check that frame is correctly loaded
 
 	/* leave space for r4-r11 */
 	p_ptr->curr_stkptr -= 32;  // skip r4-r11 (b/c no init values)
 	*(volatile uint32_t *)p_ptr->curr_stkptr = 0x1111ABBA;
 	// ^ test value for r4 to check that frame is correctly loaded
-
-	// set process program counter start addr
-	//p_ptr->proc_pc = startaddr; // not necessary, but does nothing
 
 	// put process on ready queue
 	q_insert(READYQ, pid, p_ptr->priority);
@@ -98,7 +95,7 @@ int create(
 }
 
 // wrapper for kill that process can exit to; can send exist status to
-// base_mcp_proc (this is future functionality)
+// mcp_base_proc (this is future functionality)
 void proc_exit()
 {
 	kill(curr_pid);
@@ -107,10 +104,9 @@ void proc_exit()
 }
 
 /*
- * TASKS TODO: Remove process from process table and ready queue.
- * How to return stack? Also, needs to be more bookkeeping with process
- * stack space, so that stacks can be made available again after their
- * process gets killed.
+ * TASKS TODO: Needs to be more bookkeeping with process stack space, so that
+ * stacks can be made available again after their process gets killed. More
+ * bookkeeping needed generally.
  */
 int	kill(pid)
 {

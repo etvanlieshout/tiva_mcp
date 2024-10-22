@@ -10,7 +10,7 @@
  *
  * NOTES:
  * Assumed to be called from within syscalls
- */
+ *============================================================================*/
 
 #include <mcp.h>
 
