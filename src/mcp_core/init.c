@@ -4,54 +4,18 @@
  * Contains code that sets up the process table, ready queue, and process memory
  * spaces; then, starts the main Tiva MCP process.
  *
- * The main MCP process begins execution at mcp_run(). User code should begin
- * within this function.
+ * The main MCP process begins execution at mcp_main() in the mcp_main.c file.
+ * User code should begin within this file & function.
  *
  * Contents:
- * mcp_run()
  * mcp_init()
  * mem_init()
  * sched_timer_init()
- * start_mcp_proc() [Unused]
- */
+ * start_mcp_proc()
+ * svc_handler()
+ *============================================================================*/
 
 #include <mcp.h>
-
-// these functions are in led.c and included just for testing
-extern void red();
-extern void blue();
-extern void led_init();
-
-
-/* -- mcp_run ------------------------------------------------------------------
- * Primary mcp process code begins here. Effectively main() within the mcp.
- * */
-
-//void mcp_run()
-//{
-//	/* Start of user code */
-//	/* Red and Blue processes included for testing */
-//	char* red_proc = "red";
-//	create(&red, 512, 1, red_proc, 0);
-//	char* blue_proc = "blue";
-//	create(&blue, 512, 1, blue_proc, 0);
-//	
-//	/* keep main mcp_proc alive */
-//	uint16_t a = 1; // for testing process kill
-//	uint16_t b = 1;
-//	while (1) {
-//		a++;	// can add book-keeping an other things here later.
-//		if (a == 0) {
-//			b++; // eg could have it print current proc name to debug term?
-//			if (b++ == 100)
-//				kill(1); // kill process pid = 1
-//		}
-//		if (b > 100)
-//			break;
-//	}
-//	while(1)
-//		;
-//}
 
 /* -- mcp_init -----------------------------------------------------------------
  * Initializes memory spaces, process table and ready queue, and then creates

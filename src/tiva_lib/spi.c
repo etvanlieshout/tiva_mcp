@@ -14,6 +14,10 @@
 #include <spi.h>
 
 /* -- spi_init -----------------------------------------------------------------
+ * Initialize a tive SSI module for SPI communications.
+ * ARGS: ssi/spi module number to use (0-3)
+ * RETURNS: pointer to struct holding spi module info
+ *
  * current limitations: defaults to sysclk, prescaler=4, & 8bit data mode
  * also, master and polarity */
 tiva_spi *spi_init(uint8_t ssi_num)
@@ -24,7 +28,7 @@ tiva_spi *spi_init(uint8_t ssi_num)
 	}
 
 	/* 'malloc' tiva_spi struct */
-	tiva_spi *spi = alloc(sizeof(tiva_spi));  // get 8 bytes for struct
+	tiva_spi *spi = alloc(sizeof(tiva_spi));
 
 	volatile void *ssi_base;
 	volatile void *gpio_base;
@@ -73,12 +77,12 @@ tiva_spi *spi_init(uint8_t ssi_num)
 	gpio_set_fn_pins(gpio_port, gpio_pinmask, gpio_pmcx);
 
 	// config & activate SSI module
-	*(volatile uint32_t *)(ssi_base + SSICR1) &= (0x02) ^ (0xFFFFFFFF); /* disable ssi */
-	*(volatile uint32_t *)(ssi_base + SSICR1) &= (0x04) ^ (0xFFFFFFFF); /* set as master */
-	*(volatile uint32_t *)(ssi_base + SSICC) &= (0x01) ^ (0xFFFFFFFF); /*set to use system clock*/
-	*(volatile uint8_t  *)(ssi_base + SSICPSR)  = 0x04; /* set clk prescale*/
-	*(volatile uint8_t  *)(ssi_base + SSICR0)  = 0x07; /* set polarity & datawidth */
-	*(volatile uint8_t  *)(ssi_base + SSICR1) |= (0x02); /* enable ssi */
+	*(volatile uint32_t *)(ssi_base + SSICR1) &= ~0x02; /* disable ssi */
+	*(volatile uint32_t *)(ssi_base + SSICR1) &= ~0x04; /* set as master */
+	*(volatile uint32_t *)(ssi_base + SSICC)  &= ~0x01; /*set to use system clock*/
+	*(volatile uint8_t  *)(ssi_base + SSICPSR) = 0x04;  /* set clk prescale*/
+	*(volatile uint8_t  *)(ssi_base + SSICR0)  = 0x07;  /* set polarity & datawidth */
+	*(volatile uint8_t  *)(ssi_base + SSICR1) |= 0x02;  /* enable ssi */
 
 	// once sucessfully init'd, set up & return spi struct
 	spi->ssi_base = ssi_base;

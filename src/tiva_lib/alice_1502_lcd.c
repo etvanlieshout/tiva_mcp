@@ -59,7 +59,6 @@ void lcd1502_init(tiva_spi *spi)
 	*((volatile uint8_t *)(GPIOC_BASE + 0x100)) = 0;
 	// ^^ write a zero to latch to hold it low
 
-	//lcd1502_reset(spi);
 	lcd1502_spi_send(spi, init_cmds, LCD_CMD);
 
 	return;
@@ -69,7 +68,7 @@ void lcd1502_init(tiva_spi *spi)
 /* -- lcd1502_spi_send ---------------------------------------------------------
  * General function for sending data to lcd.
  * Takes a tiva_spi struct, byte array, & type (cmd or data).
- * Data should be null-terminated; since 0x0 is not valid byte for 1602, there
+ * Data should be null-terminated; since 0x0 is not valid byte for 1502, there
  * should not be any issue with that.
  */
 void lcd1502_spi_send(tiva_spi *spi, char* data, int dtype)
@@ -117,7 +116,6 @@ void lcd1502_spi_send(tiva_spi *spi, char* data, int dtype)
 		hct595_outen();
 		lcd_delay(200);
 	}
-	//hct595_outdis(); // just to keep noise away from lcd
 
 	/* reset heap or pain.
 	 * Luckily, the only allocation I'm using is the spi struct */

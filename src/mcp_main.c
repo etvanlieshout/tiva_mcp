@@ -23,7 +23,6 @@
 /* these functions are in led_demo.c and included just for testing */
 extern void red();
 extern void blue();
-extern void led_init();
 
 /* -- mcp_main -----------------------------------------------------------------
  * Primary mcp process code begins here.

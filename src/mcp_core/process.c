@@ -5,11 +5,16 @@
  *
  * NOTE: Only a bare-bones version of create() has been implemented; kill() not
  * implemented at all.
+ *
+ * Contents:
+ * create() [syscall]
+ * kill() [syscall]
+ * proc_exit()
  *============================================================================*/
 
 #include <mcp.h>
 
-/* -- create() [SYSCALL] -------------------------------------------------------
+/* -- create() -----------------------------------------------------------------
  * syscall create: creates new process and puts it on the ready list
  * THIS FIRST IMPLEMENTATION ASSUMES EVERYTHING IS VALID AND DOESN'T PROCESS ANY
  * ARGS GIVEN FOR PROCESS
@@ -19,7 +24,7 @@ int create(
 		int	stk_size,
 		int	priority,
 		char	*name,
-		int	argc,        // number of args to be passed to start fn
+		int	argc,        // number of args to be passed to start fn (unused)
 		...
 	  )
 {
@@ -30,9 +35,7 @@ int create(
 
 	cspr_restore = disable_i();
 
-	// TODO
-	// check stack size & stk addr are multiples of 8
-	// check priority is valid
+	// TODO: Error checking
 	
 	/* get new pid, adjust process mgmt globals, set up process struct */
 	int pid = free_pid++; // needs to be more sophisticated (search proc table)
@@ -103,7 +106,7 @@ void proc_exit()
 				// to reschedule
 }
 
-/*
+/* -- Kill ---------------------------------------------------------------------
  * TASKS TODO: Needs to be more bookkeeping with process stack space, so that
  * stacks can be made available again after their process gets killed. More
  * bookkeeping needed generally.

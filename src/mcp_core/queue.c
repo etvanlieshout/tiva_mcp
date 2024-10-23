@@ -63,6 +63,7 @@ int	q_insert(q, pid, pri)
 }
 
 /* -- q_remove -----------------------------------------------------------------
+ * Remove specified node from list
  */
 void q_remove(int qid, int pid)
 {
