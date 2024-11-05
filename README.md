@@ -25,6 +25,10 @@ parameters.
 + Basic process management: create, exit, and kill processes
 + Each process given its own stack/ memory region
 + Simple heap allocator
++ Simple library + drivers for:
+    + GPIO
+    + SPI
+    + 1502 LCD screen (via daughter board)
 
 Target: Designed to run on the TI Tiva tm4c123gh6pm mcu (ARM Cortex-M4).
 
@@ -35,4 +39,8 @@ settings.
 Portability:
 Timer interrupt initialization is board-specific; haven't checked compatibility
 with other Tiva mcus. Test code (blinking LEDs) is also specific to the
-tm4c123gh6pm mcu.
+tm4c123gh6pm mcu. Some features (LCD screen demo) are specific to the ALICE
+EDUBASE V-2 daughter board from trainer4edu.com.
+
+TODO:
++ Switch rescheduling timer to SysTick
