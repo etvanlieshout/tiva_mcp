@@ -63,6 +63,7 @@ void mem_init()
  */
 void sched_timer_init()
 {
+	// TESTING GIT BRANCH
 	*(volatile uint8_t *) (0x400FE604) |= 0x01;  // turn on/ enable Timer 0
 	/* Need to wait 3 clock cycles for Timer 0 module to be enabled */
 	int i=0;
