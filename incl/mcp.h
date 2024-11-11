@@ -4,6 +4,7 @@
 #define _MCP_H
 
 #include <stdint.h>
+#include <addrs.h>
 #include <sys_constants.h>
 #include <interrupt_ctrl.h>
 #include <scheduler.h>

@@ -57,29 +57,21 @@ void mem_init()
 }
 
 /* -- sched_timer_init() -------------------------------------------------------
- * Sets up Timer 0 module on Tiva MCU to function as an interrupt and thereby
+ * Sets up SysTick clock on Tiva MCU to function as a timer interrupt & thereby
  * be the primary trigger for rescheduling.
- * TODO: Switch to using systick
  */
 void sched_timer_init()
 {
-	// TESTING GIT BRANCH
-	*(volatile uint8_t *) (0x400FE604) |= 0x01;  // turn on/ enable Timer 0
-	/* Need to wait 3 clock cycles for Timer 0 module to be enabled */
-	int i=0;
-	for (i; i<2; ++i);
+	/* Set SysTick Interrupt Priority to 1 (lower priority than SVC & PendSV) */
+	/* NOTE: Not used right now */
+	/* *(volatile uint32_t *) (COREBASE + SYSPRI3) |= 0x20000000; */
 
-	/* Configure Timer 0 to be our scheduler interrupt */
-	*(volatile uint8_t *) (0x4003000C) &= 0xFE;  // clear bit => disable
-	*(volatile uint8_t *) (0x40030000) &= 0xFC;  // set to 32-bit mode
-	*(volatile uint8_t *) (0x40030004) &= 0xFE;  // set to periodic mode:
-	*(volatile uint8_t *) (0x40030004) |= 0x02;  // write 0b10 to low bits
-	*(volatile uint32_t *)(0x40030028)  = 0x27100; // 160,000 = 0.01s period
-	//*(volatile uint32_t *)(0x40030028)  = 0x1E8480; // 2M = 1/8 sec period
-	//*(volatile uint32_t *)(0x40030028)  = 0x7A1200; // 8M = 1/2 sec period
-	*(volatile uint8_t *) (0x40030018) |= 0x01;  // enable mcu interrupt
-	*(volatile uint32_t *)(0xE000E100) |= 0x80000; //mcu accept tmr intrupt
-	*(volatile uint8_t *) (0x4003000C) |= 0x01;  // enable timer
+	/* Timer interval: SysTick counts down every main clock cycle; main clock on
+	 * the Tiva tm4c123gh6pm is 80MHz. */
+	*(volatile uint32_t *) (COREBASE + STRELOAD) |= 800000; /* 0.01s period */
+
+	/* Congfigure & Enable SysTick timer: Select sys clk, Enable Interrupt */
+	*(volatile uint8_t *) (COREBASE + STCTRL) |= 0x7;
 }
 
 /* -- start_mcp_proc() ---------------------------------------------------------
