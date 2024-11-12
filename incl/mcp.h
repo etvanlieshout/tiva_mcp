@@ -12,6 +12,7 @@
 #include <process.h>
 #include <queue.h>
 #include <mem.h>
+#include <svc.h>
 #include <init.h>
 
 #endif

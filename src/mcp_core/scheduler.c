@@ -77,7 +77,7 @@ void	resched_timer_isr()
 	//*(volatile uint32_t *)(0x40030024) |= 0x1;
 
 	// disable interrupts (not necessary if only called as interrupt handler)
-	//int cpsr_state = disable_i();
+	// int cpsr_state = disable_i();
 
 	vreg_preserve();
 	reschedule();

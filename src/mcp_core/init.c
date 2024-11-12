@@ -89,17 +89,17 @@ void start_mcp_proc()
 /* -- SVC Handler ---------------------------------------------------------
  * Handler for SVC. Extracts immediate value and takes action accordingly.
  */
-void svc_handler()
-{
-	uint8_t svc_code = svc_code_get();
-
-	switch (svc_code) {
-		case 0xFF:
-			start_mcp_proc();
-			break;
-		case 0xE1:
-			break;
-		default:
-			break;
-	}
-}
+//void svc_handler()
+//{
+//	uint8_t svc_code = svc_code_get();
+//
+//	switch (svc_code) {
+//		case 0xFF:
+//			start_mcp_proc();
+//			break;
+//		case 0xE1:
+//			break;
+//		default:
+//			break;
+//	}
+//}
